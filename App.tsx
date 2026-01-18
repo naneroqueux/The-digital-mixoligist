@@ -26,6 +26,8 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
+    if (!supabase) return;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
@@ -121,14 +123,30 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      setSession(null); // Explicit reset for immediate feedback
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+      setSession(null);
     } catch (error) {
       console.error('Erro ao sair:', error);
-      // Even if it fails, we force clear the session locally to let the user "leave"
       setSession(null);
     }
   };
+
+  if (!supabase) {
+    return (
+      <div className="min-h-screen bg-[#141218] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md space-y-6 animate-m3-in">
+          <i className="ph ph-warning-circle text-7xl text-[#D0BCFF]"></i>
+          <h1 className="text-3xl font-display text-white">Configuração Necessária</h1>
+          <p className="text-white/40 font-light leading-relaxed">
+            As variáveis de ambiente do Supabase não foram encontradas. <br />
+            Por favor, verifique se <code className="bg-white/5 px-2 py-1 rounded text-[#D0BCFF]">VITE_SUPABASE_URL</code> e <code className="bg-white/5 px-2 py-1 rounded text-[#D0BCFF]">VITE_SUPABASE_ANON_KEY</code> estão configuradas no seu painel da Vercel.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!session) {
     return <Auth />;
