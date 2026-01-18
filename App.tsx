@@ -162,43 +162,43 @@ const App: React.FC = () => {
         ></div>
       </div>
 
-      <header className="fixed top-0 w-full z-50 h-24 flex items-center px-8 bg-[#141218]/80 backdrop-blur-3xl border-b border-white/5">
+      <header className="fixed top-0 w-full z-50 h-20 md:h-24 flex items-center px-4 md:px-8 bg-[#141218]/80 backdrop-blur-3xl border-b border-white/5">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-          <div className="flex items-center gap-6 cursor-pointer group" onClick={handleHomeClick}>
+          <div className="flex items-center gap-3 md:gap-6 cursor-pointer group" onClick={handleHomeClick}>
             <div className="flex items-center justify-center transition-all group-hover:scale-110">
-              <i className="ph ph-martini text-5xl text-[#D0BCFF]"></i>
+              <i className="ph ph-martini text-3xl md:text-5xl text-[#D0BCFF]"></i>
             </div>
-            <span className="font-display text-3xl font-light tracking-tight text-white/90">Mixologist</span>
+            <span className="font-display text-2xl md:text-3xl font-light tracking-tight text-white/90">Mixologist</span>
           </div>
 
           <div className="flex items-center gap-4">
             <button
               onClick={loadFavoritesView}
-              className={`flex items-center gap-3 h-14 px-8 rounded-full transition-all border ${view === 'favorites' ? 'bg-white text-black border-white shadow-2xl scale-105' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/5'}`}
+              className={`flex items-center gap-3 h-11 md:h-14 px-4 md:px-8 rounded-full transition-all border ${view === 'favorites' ? 'bg-white text-black border-white shadow-2xl scale-105' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/5'}`}
             >
-              <i className={`ph${view === 'favorites' ? '-fill' : ''} ph-heart text-2xl`}></i>
-              <span className="text-xs font-black uppercase tracking-[0.25em] hidden md:inline">Favoritos</span>
+              <i className={`ph${view === 'favorites' ? '-fill' : ''} ph-heart text-xl md:text-2xl`}></i>
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] hidden md:inline">Favoritos</span>
             </button>
 
             <button
               onClick={handleLogout}
-              className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-400/30 transition-all mr-2"
+              className="w-11 h-11 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-400/30 transition-all"
               title="Sair"
             >
-              <i className="ph ph-sign-out text-2xl"></i>
+              <i className="ph ph-sign-out text-xl md:text-2xl"></i>
             </button>
 
-            <div className="h-14 pl-6 border-l border-white/5 flex items-center gap-4">
+            <div className="h-11 md:h-14 pl-4 md:pl-6 border-l border-white/5 flex items-center gap-4">
               <div className="hidden lg:flex flex-col items-end">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D0BCFF]/60 leading-none mb-1">Logado como</span>
-                <span className="text-sm font-light text-white/90 leading-none">{session.user.email}</span>
+                <span className="text-sm font-light text-white/90 leading-none">{session?.user?.email}</span>
               </div>
 
-              <div className="w-12 h-12 rounded-full bg-[#D0BCFF]/10 border border-[#D0BCFF]/20 flex items-center justify-center overflow-hidden">
-                {session.user.user_metadata?.avatar_url ? (
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#D0BCFF]/10 border border-[#D0BCFF]/20 flex items-center justify-center overflow-hidden">
+                {session?.user?.user_metadata?.avatar_url ? (
                   <img src={session.user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <i className="ph-fill ph-user text-[#D0BCFF] text-xl"></i>
+                  <i className="ph-fill ph-user text-[#D0BCFF] text-lg md:text-xl"></i>
                 )}
               </div>
             </div>
@@ -212,7 +212,7 @@ const App: React.FC = () => {
           {view === 'home' && status === LoadingState.IDLE && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-m3-in space-y-24">
               <div className="space-y-10">
-                <h1 className="font-display text-7xl md:text-9xl text-white font-normal tracking-tighter leading-[0.85] mb-8">
+                <h1 className="font-display text-5xl md:text-7xl lg:text-9xl text-white font-normal tracking-tighter leading-[0.9] md:leading-[0.85] mb-8">
                   Alquimia & <br className="hidden md:block" /> Tradição.
                 </h1>
                 <p className="text-white/40 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-light">
@@ -229,8 +229,8 @@ const App: React.FC = () => {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder={searchMode === 'name' ? "O que vamos preparar hoje?" : "Ingrediente principal..."}
-                    className="w-full h-[72px] pl-16 pr-44 bg-white/[0.05] text-white rounded-full border border-white/5 transition-all outline-none text-xl font-light focus:bg-white/[0.08] focus:border-[#D0BCFF]/30 placeholder:text-white/20 shadow-lg"
+                    placeholder={searchMode === 'name' ? "O que vamos preparar?" : "Ingrediente..."}
+                    className="w-full h-16 md:h-[72px] pl-12 md:pl-16 pr-32 md:pr-44 bg-white/[0.05] text-white rounded-full border border-white/5 transition-all outline-none text-base md:text-xl font-light focus:bg-white/[0.08] focus:border-[#D0BCFF]/30 placeholder:text-white/20 shadow-lg"
                   />
 
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -244,9 +244,10 @@ const App: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="h-12 px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center gap-2"
+                      className="h-10 md:h-12 px-4 md:px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-xs md:text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center gap-2"
                     >
-                      <span>Explorar</span>
+                      <span className="hidden xs:inline">Explorar</span>
+                      <i className="ph ph-arrow-right md:hidden"></i>
                     </button>
                   </div>
                 </form>
@@ -348,8 +349,8 @@ const App: React.FC = () => {
 
           {view === 'favorites' && (
             <div className="animate-m3-in space-y-24">
-              <div className="flex items-end justify-between border-b border-white/5 pb-14">
-                <h2 className="font-display text-8xl text-white font-normal tracking-tighter">Acervo Pessoal.</h2>
+              <div className="flex items-end justify-between border-b border-white/5 pb-8 md:pb-14">
+                <h2 className="font-display text-5xl md:text-8xl text-white font-normal tracking-tighter">Acervo Pessoal.</h2>
               </div>
 
               {favoritesList.length > 0 ? (
@@ -370,7 +371,7 @@ const App: React.FC = () => {
                           <span className="text-white text-xs font-black uppercase tracking-widest">Ver Receita Completa</span>
                         </div>
                       </div>
-                      <h3 className="font-display text-4xl text-white mb-4 group-hover:translate-x-2 transition-transform duration-500">{fav.name}</h3>
+                      <h3 className="font-display text-3xl md:text-4xl text-white mb-4 group-hover:translate-x-2 transition-transform duration-500">{fav.name}</h3>
                       <p className="text-xs text-white/30 uppercase tracking-[0.4em] font-black">{fav.ibaClassification}</p>
                     </div>
                   ))}

@@ -37,7 +37,7 @@ export const Auth: React.FC = () => {
                     <div className="inline-flex items-center justify-center mb-6">
                         <i className="ph ph-martini text-6xl text-[#D0BCFF]"></i>
                     </div>
-                    <h1 className="font-display text-5xl text-white font-normal tracking-tight">
+                    <h1 className="font-display text-4xl md:text-5xl text-white font-normal tracking-tight">
                         Seja bem-vindo.
                     </h1>
                     <p className="text-white/40 font-light text-lg">
@@ -45,7 +45,7 @@ export const Auth: React.FC = () => {
                     </p>
                 </div>
 
-                <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/5 p-10 rounded-[48px] shadow-2xl space-y-8">
+                <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/5 p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl space-y-8">
                     <form onSubmit={handleAuth} className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-4">E-mail</label>
@@ -72,7 +72,7 @@ export const Auth: React.FC = () => {
                         </div>
 
                         {message && (
-                            <p className={`text-sm text-center px-4 font-medium ${message.type === 'error' ? 'text-red-400' : 'text-[#D0BCFF]'}`}>
+                            <p className={`text-xs md:text-sm text-center px-4 font-medium ${message.type === 'error' ? 'text-red-400' : 'text-[#D0BCFF]'}`}>
                                 {message.text}
                             </p>
                         )}
