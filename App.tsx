@@ -17,8 +17,9 @@ const App: React.FC = () => {
   const [searchMode, setSearchMode] = useState<SearchMode>('name');
   const [status, setStatus] = useState<LoadingState>(LoadingState.IDLE);
   const [data, setData] = useState<CocktailProfile | null>(null);
+  const [searchResults, setSearchResults] = useState<CocktailProfile[]>([]);
   const [isFavoriteState, setIsFavoriteState] = useState(false);
-  const [view, setView] = useState<'home' | 'favorites'>('home');
+  const [view, setView] = useState<'home' | 'favorites' | 'results'>('home');
   const [favoritesList, setFavoritesList] = useState<CocktailProfile[]>([]);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [searchStatus, setSearchStatus] = useState<string>('');
@@ -56,31 +57,44 @@ const App: React.FC = () => {
     checkFavoriteStatus();
   }, [data]);
 
-  const performSearch = async (searchTerm: string) => {
+  const performSearch = async (searchTerm: string, modeOverride?: SearchMode) => {
     if (!searchTerm.trim()) return;
+
+    const mode = modeOverride || searchMode;
 
     setView('home');
     setStatus(LoadingState.LOADING);
     setData(null);
+    setSearchResults([]);
     setSearchStatus('Iniciando busca...');
 
     try {
-      const result = await searchCocktail(searchTerm, setSearchStatus);
+      const results = await searchCocktail(searchTerm, setSearchStatus, mode);
 
-      if (result) {
-        setData(result);
-        setStatus(LoadingState.SUCCESS);
+      if (results && results.length > 0) {
+        setSearchResults(results);
 
-        if (!result.imageUrl) {
-          setIsImageLoading(true);
-          try {
-            const img = await getCocktailImage(result.name, result.glassware, result.garnish, result.color);
-            if (img) {
-              setData(prev => prev ? { ...prev, imageUrl: img } : null);
+        if (results.length === 1) {
+          // Single result - show directly
+          const singleResult = results[0];
+          setData(singleResult);
+          setStatus(LoadingState.SUCCESS);
+
+          if (!singleResult.imageUrl) {
+            setIsImageLoading(true);
+            try {
+              const img = await getCocktailImage(singleResult.name, singleResult.glassware, singleResult.garnish, singleResult.color);
+              if (img) {
+                setData(prev => prev ? { ...prev, imageUrl: img } : null);
+              }
+            } finally {
+              setIsImageLoading(false);
             }
-          } finally {
-            setIsImageLoading(false);
           }
+        } else {
+          // Multiple results - show list
+          setView('results');
+          setStatus(LoadingState.SUCCESS);
         }
       } else {
         setStatus(LoadingState.NOT_FOUND);
@@ -132,6 +146,7 @@ const App: React.FC = () => {
     setQuery('');
     setStatus(LoadingState.IDLE);
     setData(null);
+    setSearchResults([]);
     setView('home');
   };
 
@@ -271,7 +286,7 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-3 cursor-pointer group" onClick={handleHomeClick}>
             <i className="ph ph-martini text-2xl md:text-3xl text-[#D0BCFF] transition-all group-hover:scale-110"></i>
-            <span className="font-display text-xl md:text-2xl font-light tracking-tight text-white/90 hidden sm:inline">Digital Mixologist</span>
+            <span className="font-display text-lg md:text-2xl font-light tracking-tight text-white/90">Digital Mixologist</span>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
@@ -398,7 +413,7 @@ const App: React.FC = () => {
                       .map((c) => (
                         <button
                           key={c.name}
-                          onClick={() => { setQuery(c.name); performSearch(c.name); }}
+                          onClick={() => { setQuery(c.name); performSearch(c.name, 'name'); }}
                           className="px-5 py-2 rounded-full border border-white/5 bg-white/[0.02] text-white/40 hover:text-[#D0BCFF] hover:border-[#D0BCFF]/30 hover:bg-[#D0BCFF]/5 transition-all text-sm font-medium"
                         >
                           {c.name}
@@ -435,6 +450,50 @@ const App: React.FC = () => {
             </div>
           )}
 
+          {/* New Result List View */}
+          {status === LoadingState.SUCCESS && view === 'results' && searchResults.length > 0 && (
+            <div className="animate-m3-in space-y-24">
+              <div className="flex items-end justify-between border-b border-white/5 pb-8 md:pb-14">
+                <div className="space-y-2">
+                  <button
+                    onClick={handleHomeClick}
+                    className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-4"
+                  >
+                    <i className="ph ph-arrow-left text-xl"></i>
+                    <span className="text-sm font-bold uppercase tracking-widest">Voltar</span>
+                  </button>
+                  <h2 className="font-display text-4xl md:text-6xl text-white font-normal tracking-tighter">
+                    Resultados para "{query}".
+                  </h2>
+                  <p className="text-white/40 font-light">Encontramos {searchResults.length} drinks com essa busca.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {searchResults.map((result) => (
+                  <div
+                    key={result.name}
+                    onClick={() => { setData(result); setView('home'); setStatus(LoadingState.SUCCESS); }}
+                    className="group relative rounded-[48px] overflow-hidden bg-white/[0.02] border border-white/5 p-10 cursor-pointer hover:bg-white/[0.04] transition-all duration-700 hover:-translate-y-3 shadow-xl"
+                  >
+                    <div className="aspect-[4/3] rounded-[32px] bg-black/40 mb-10 overflow-hidden flex items-center justify-center relative">
+                      {result.imageUrl ? (
+                        <img src={result.imageUrl} alt={result.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-700" />
+                      ) : (
+                        <i className="ph ph-martini text-8xl text-[#D0BCFF]/15"></i>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                        <span className="text-white text-xs font-black uppercase tracking-widest">Abrir Receita</span>
+                      </div>
+                    </div>
+                    <h3 className="font-display text-3xl md:text-4xl text-white mb-4 group-hover:translate-x-2 transition-transform duration-500">{result.name}</h3>
+                    <p className="text-xs text-white/30 uppercase tracking-[0.4em] font-black">{result.ibaClassification}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {status === LoadingState.ERROR && (
             <div className="flex flex-col items-center justify-center min-h-[50vh] text-center animate-m3-in space-y-10">
               <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
@@ -454,7 +513,7 @@ const App: React.FC = () => {
           {status === LoadingState.NOT_FOUND && (
             <div className="flex flex-col items-center justify-center min-h-[50vh] text-center animate-m3-in space-y-10">
               <h3 className="font-display text-5xl text-white/90">Drink não encontrado.</h3>
-              <p className="text-white/30 font-light max-w-sm mx-auto text-lg leading-relaxed">Não encontramos esse clássico em nosso acervo IBA. Tente uma nova busca.</p>
+              <p className="text-white/30 font-light max-w-sm mx-auto text-lg leading-relaxed">Não encontramos resultado clássico ou moderno para sua busca. Tente outro termo ou ingrediente.</p>
               <button
                 onClick={handleHomeClick}
                 className="px-12 py-5 rounded-full border border-white/10 text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-[0.5em]"
