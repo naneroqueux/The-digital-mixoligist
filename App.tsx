@@ -244,10 +244,10 @@ const App: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="h-10 md:h-12 px-6 md:px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-xs md:text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center gap-2"
+                      className="h-10 w-10 md:w-auto md:h-12 md:px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-xs md:text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center justify-center gap-2"
                     >
-                      <span>Explorar</span>
-                      <i className="ph ph-arrow-right md:hidden"></i>
+                      <span className="hidden md:inline">Explorar</span>
+                      <i className="ph ph-arrow-right md:hidden text-lg"></i>
                     </button>
                   </div>
                 </form>
