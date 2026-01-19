@@ -1,5 +1,5 @@
 
-import React, { useState, FormEvent, useEffect } from 'react';
+import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import { COCKTAIL_DATABASE } from './data/cocktails';
 import { getCocktailImage } from './services/imageService';
 import { searchCocktail } from './services/searchService';
@@ -24,6 +24,8 @@ const App: React.FC = () => {
   const [searchStatus, setSearchStatus] = useState<string>('');
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [session, setSession] = useState<Session | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!supabase) return;
@@ -97,12 +99,32 @@ const App: React.FC = () => {
 
   const handleToggleFavorite = async () => {
     if (!data) return;
-    if (isFavoriteState) {
-      await removeFavorite(data.name);
-      setIsFavoriteState(false);
-    } else {
-      await saveFavorite(data);
-      setIsFavoriteState(true);
+    try {
+      if (isFavoriteState) {
+        await removeFavorite(data.name);
+        setIsFavoriteState(false);
+        console.log("Removed from favorites:", data.name);
+      } else {
+        await saveFavorite(data);
+        setIsFavoriteState(true);
+        console.log("Added to favorites:", data.name);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      // Tenta novamente após um pequeno delay
+      setTimeout(async () => {
+        try {
+          if (isFavoriteState) {
+            await removeFavorite(data.name);
+            setIsFavoriteState(false);
+          } else {
+            await saveFavorite(data);
+            setIsFavoriteState(true);
+          }
+        } catch (retryError) {
+          console.error("Retry failed:", retryError);
+        }
+      }, 100);
     }
   };
 
@@ -114,11 +136,20 @@ const App: React.FC = () => {
   };
 
   const loadFavoritesView = async () => {
-    const list = await getFavorites();
-    setFavoritesList(list);
-    setView('favorites');
-    setStatus(LoadingState.IDLE);
-    setData(null);
+    try {
+      const list = await getFavorites();
+      console.log("Loaded favorites:", list.length);
+      setFavoritesList(list);
+      setView('favorites');
+      setStatus(LoadingState.IDLE);
+      setData(null);
+    } catch (error) {
+      console.error("Error loading favorites:", error);
+      setFavoritesList([]);
+      setView('favorites');
+      setStatus(LoadingState.IDLE);
+      setData(null);
+    }
   };
 
   const handleLogout = async () => {
@@ -130,6 +161,80 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('Erro ao sair:', error);
       setSession(null);
+    }
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !session?.user || !supabase) return;
+
+    try {
+      setIsUploadingAvatar(true);
+
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione uma imagem válida');
+        return;
+      }
+
+      // Validar tamanho (máx 1MB para base64)
+      if (file.size > 1 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 1MB');
+        return;
+      }
+
+      // Converter para base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64String = reader.result as string;
+
+          // Atualizar metadados do usuário com a imagem em base64
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: { avatar_url: base64String }
+          });
+
+          if (updateError) {
+            console.error('Erro ao atualizar perfil:', updateError);
+            alert(`Erro ao atualizar perfil: ${updateError.message}`);
+            return;
+          }
+
+          // Atualizar sessão local
+          const { data: { session: newSession } } = await supabase.auth.getSession();
+          setSession(newSession);
+
+          console.log('Avatar atualizado com sucesso!');
+        } catch (error: any) {
+          console.error('Erro ao processar avatar:', error);
+          alert(`Erro ao processar imagem: ${error.message || 'Erro desconhecido'}`);
+        } finally {
+          setIsUploadingAvatar(false);
+          // Limpar input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }
+      };
+
+      reader.onerror = () => {
+        alert('Erro ao ler o arquivo');
+        setIsUploadingAvatar(false);
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      console.error('Erro ao processar avatar:', error);
+      alert(`Erro ao processar imagem: ${error.message || 'Erro desconhecido'}`);
+      setIsUploadingAvatar(false);
+      // Limpar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -162,45 +267,58 @@ const App: React.FC = () => {
         ></div>
       </div>
 
-      <header className="fixed top-0 w-full z-50 h-20 md:h-24 flex items-center px-4 md:px-8 bg-[#141218]/80 backdrop-blur-3xl border-b border-white/5">
+      <header className="fixed top-0 w-full z-50 h-16 md:h-20 flex items-center px-4 md:px-8 bg-[#141218]/60 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-          <div className="flex items-center gap-3 md:gap-6 cursor-pointer group" onClick={handleHomeClick}>
-            <div className="flex items-center justify-center transition-all group-hover:scale-110">
-              <i className="ph ph-martini text-3xl md:text-5xl text-[#D0BCFF]"></i>
-            </div>
-            <span className="font-display text-2xl md:text-3xl font-light tracking-tight text-white/90">Digital Mixologist</span>
+          <div className="flex items-center gap-2 md:gap-3 cursor-pointer group" onClick={handleHomeClick}>
+            <i className="ph ph-martini text-2xl md:text-3xl text-[#D0BCFF] transition-all group-hover:scale-110"></i>
+            <span className="font-display text-xl md:text-2xl font-light tracking-tight text-white/90 hidden sm:inline">Digital Mixologist</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={loadFavoritesView}
-              className={`flex items-center gap-3 h-11 md:h-14 px-4 md:px-8 rounded-full transition-all border ${view === 'favorites' ? 'bg-white text-black border-white shadow-2xl scale-105' : 'text-white/60 border-white/10 hover:text-white hover:bg-white/5'}`}
+              className={`w-10 h-10 md:w-12 md:h-12 rounded-full transition-all flex items-center justify-center ${view === 'favorites' ? 'bg-white text-black' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+              title="Favoritos"
             >
-              <i className={`ph${view === 'favorites' ? '-fill' : ''} ph-heart text-xl md:text-2xl`}></i>
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] hidden md:inline">Favoritos</span>
+              <i className={`ph${view === 'favorites' ? '-fill' : ''} ph-heart text-lg md:text-xl`}></i>
             </button>
 
             <button
               onClick={handleLogout}
-              className="w-11 h-11 md:w-14 md:h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-400/30 transition-all"
+              className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white/40 hover:text-red-400 transition-all"
               title="Sair"
             >
-              <i className="ph ph-sign-out text-xl md:text-2xl"></i>
+              <i className="ph ph-sign-out text-lg md:text-xl"></i>
             </button>
 
-            <div className="h-11 md:h-14 pl-4 md:pl-6 border-l border-white/5 flex items-center gap-4">
-              <div className="hidden lg:flex flex-col items-end">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D0BCFF]/60 leading-none mb-1">Logado como</span>
-                <span className="text-sm font-light text-white/90 leading-none">{session?.user?.email}</span>
-              </div>
-
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#D0BCFF]/10 border border-[#D0BCFF]/20 flex items-center justify-center overflow-hidden">
+            <div className="relative">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
+              <button
+                onClick={handleAvatarClick}
+                disabled={isUploadingAvatar}
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#D0BCFF]/10 border border-[#D0BCFF]/20 flex items-center justify-center overflow-hidden ml-2 hover:border-[#D0BCFF]/40 transition-all cursor-pointer relative group"
+                title="Clique para alterar foto"
+              >
+                {isUploadingAvatar && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  </div>
+                )}
                 {session?.user?.user_metadata?.avatar_url ? (
                   <img src={session.user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <i className="ph-fill ph-user text-[#D0BCFF] text-lg md:text-xl"></i>
+                  <i className="ph-fill ph-user text-[#D0BCFF] text-base md:text-lg"></i>
                 )}
-              </div>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <i className="ph ph-camera text-white text-sm"></i>
+                </div>
+              </button>
             </div>
           </div>
         </div>
