@@ -212,7 +212,7 @@ const App: React.FC = () => {
           {view === 'home' && status === LoadingState.IDLE && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-m3-in space-y-24">
               <div className="space-y-10">
-                <h1 className="font-display text-5xl md:text-7xl lg:text-9xl text-white font-normal tracking-tighter leading-[0.9] md:leading-[0.85] mb-8">
+                <h1 className="font-display text-5xl md:text-7xl lg:text-9xl text-white font-normal tracking-[-1px] leading-[0.9] md:leading-[0.85] mb-8">
                   Alquimia & <br className="hidden md:block" /> Tradição.
                 </h1>
                 <p className="text-white/40 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-light">
