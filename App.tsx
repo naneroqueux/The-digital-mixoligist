@@ -244,9 +244,9 @@ const App: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="h-10 md:h-12 px-4 md:px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-xs md:text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center gap-2"
+                      className="h-10 md:h-12 px-6 md:px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-xs md:text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center gap-2"
                     >
-                      <span className="hidden xs:inline">Explorar</span>
+                      <span>Explorar</span>
                       <i className="ph ph-arrow-right md:hidden"></i>
                     </button>
                   </div>
@@ -387,7 +387,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="py-20 text-center opacity-30 hover:opacity-100 transition-opacity border-t border-white/5">
-        <p className="text-xs font-black uppercase tracking-[1.4em] text-white">The Digital Mixologist • 2026</p>
+        <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] md:tracking-[1.4em] text-white">The Digital Mixologist • 2026</p>
       </footer>
     </div>
   );
