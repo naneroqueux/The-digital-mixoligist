@@ -1,4 +1,4 @@
-import { generateCocktailImage } from './openaiService';
+import { generateCocktailImage } from './geminiService';
 
 /**
  * Searches for a cocktail image in TheCocktailDB.
@@ -22,7 +22,7 @@ const searchTheCocktailDB = async (name: string): Promise<string | null> => {
 };
 
 /**
- * Orchestrates image search: First tries TheCocktailDB, then falls back to OpenAI.
+ * Orchestrates image search: First tries TheCocktailDB, then falls back to Gemini.
  */
 export const getCocktailImage = async (
   name: string,
@@ -40,6 +40,6 @@ export const getCocktailImage = async (
   }
 
   // 2. Fallback to Gemini generation
-  console.log(`[ImageService] Image not found in API, generating with AI for: ${name}`);
+  console.log(`[ImageService] Image not found in API, generating with Gemini for: ${name}`);
   return await generateCocktailImage(name, glassware, garnish, color);
 };

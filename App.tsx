@@ -168,7 +168,7 @@ const App: React.FC = () => {
             <div className="flex items-center justify-center transition-all group-hover:scale-110">
               <i className="ph ph-martini text-3xl md:text-5xl text-[#D0BCFF]"></i>
             </div>
-            <span className="font-display text-2xl md:text-3xl font-light tracking-tight text-white/90">Mixologist</span>
+            <span className="font-display text-2xl md:text-3xl font-light tracking-tight text-white/90">Digital Mixologist</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -304,10 +304,9 @@ const App: React.FC = () => {
             <div className="animate-m3-in space-y-16">
               <button
                 onClick={handleHomeClick}
-                className="group inline-flex items-center gap-5 h-14 px-8 rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
+                className="group w-14 h-14 rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center"
               >
                 <i className="ph ph-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
-                <span className="text-xs font-black uppercase tracking-[0.4em]">Voltar para a busca</span>
               </button>
 
               <CocktailCard

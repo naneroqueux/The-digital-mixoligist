@@ -1,7 +1,7 @@
 
 import { COCKTAIL_DATABASE } from '../data/cocktails';
 import { CocktailProfile } from '../types';
-import { generateCocktailRecipe } from './openaiService';
+import { generateCocktailRecipe } from './geminiService';
 import { getCocktailImage } from './imageService';
 
 /**
@@ -44,7 +44,7 @@ const normalizeExternalDrink = (drink: any): CocktailProfile => {
  * Intelligent search strategy:
  * 1. Local Database (Curated IBA)
  * 2. TheCocktailDB API (Community/Modern)
- * 3. OpenAI (Original/Unique)
+ * 3. Gemini AI (Original/Unique)
  */
 export const searchCocktail = async (
     query: string,
