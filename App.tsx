@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
   const [session, setSession] = useState<Session | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -255,13 +256,13 @@ const App: React.FC = () => {
 
   if (!supabase) {
     return (
-      <div className="min-h-screen bg-[#141218] flex items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-background-dark flex items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-6 animate-m3-in">
-          <i className="ph ph-warning-circle text-7xl text-[#D0BCFF]"></i>
-          <h1 className="text-3xl font-display text-white">Configuração Necessária</h1>
+          <span className="material-symbols-outlined text-7xl text-primary">warning</span>
+          <h1 className="serif-title text-3xl text-white italic">Configuração Necessária</h1>
           <p className="text-white/40 font-light leading-relaxed">
             As variáveis de ambiente do Supabase não foram encontradas. <br />
-            Por favor, verifique se <code className="bg-white/5 px-2 py-1 rounded text-[#D0BCFF]">VITE_SUPABASE_URL</code> e <code className="bg-white/5 px-2 py-1 rounded text-[#D0BCFF]">VITE_SUPABASE_ANON_KEY</code> estão configuradas no seu painel da Vercel.
+            Por favor, verifique se <code className="bg-white/5 px-2 py-1 rounded text-primary">VITE_SUPABASE_URL</code> e <code className="bg-white/5 px-2 py-1 rounded text-primary">VITE_SUPABASE_ANON_KEY</code> estão configuradas no seu painel da Vercel.
           </p>
         </div>
       </div>
@@ -273,173 +274,312 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#141218] selection:bg-[#D0BCFF]/30">
+    <div className="min-h-screen flex flex-col bg-background-dark selection:bg-primary/30 overflow-x-hidden">
 
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-          className="absolute -top-[10%] -right-[5%] w-[60%] h-[50%] rounded-full blur-[150px] opacity-[0.05] transition-all duration-1000"
-          style={{ backgroundColor: data?.color || '#381E72' }}
-        ></div>
-      </div>
-
-      <header className="fixed top-0 w-full z-50 h-16 md:h-20 flex items-center px-4 md:px-8 bg-[#141218]/60 backdrop-blur-2xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-3 cursor-pointer group" onClick={handleHomeClick}>
-            <i className="ph ph-martini text-2xl md:text-3xl text-[#D0BCFF] transition-all group-hover:scale-110"></i>
-            <span className="font-display text-lg md:text-2xl font-light tracking-tight text-white/90">Digital Mixologist</span>
+      {/* Fixed Header */}
+      <header className="fixed top-0 w-full z-50 px-6 md:px-20 py-6 md:py-8 bg-background-dark/80 backdrop-blur-xl border-b border-white/5">
+        <div className="flex items-center justify-between max-w-[1200px] mx-auto">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={handleHomeClick}>
+            <div className="w-8 h-8 flex items-center justify-center bg-primary rounded-full transition-transform group-hover:scale-110">
+              <span className="material-symbols-outlined text-white text-lg">local_bar</span>
+            </div>
+            <h2 className="text-white text-base md:text-lg font-bold tracking-tight">O Mixologista Digital</h2>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            <button
-              onClick={loadFavoritesView}
-              className={`w-10 h-10 md:w-12 md:h-12 rounded-full transition-all flex items-center justify-center ${view === 'favorites' ? 'bg-white text-black' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-              title="Favoritos"
-            >
-              <i className={`ph${view === 'favorites' ? '-fill' : ''} ph-heart text-lg md:text-xl`}></i>
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white/40 hover:text-red-400 transition-all"
-              title="Sair"
-            >
-              <i className="ph ph-sign-out text-lg md:text-xl"></i>
-            </button>
-
-            <div className="relative">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                className="hidden"
-              />
+          <div className="flex items-center gap-6 md:gap-12">
+            <nav className="hidden md:flex items-center gap-10">
               <button
-                onClick={handleAvatarClick}
-                disabled={isUploadingAvatar}
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#D0BCFF]/10 border border-[#D0BCFF]/20 flex items-center justify-center overflow-hidden ml-2 hover:border-[#D0BCFF]/40 transition-all cursor-pointer relative group"
-                title="Clique para alterar foto"
+                onClick={handleHomeClick}
+                className={`text-sm font-medium transition-colors tracking-widest uppercase ${view === 'home' && status === LoadingState.IDLE ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
-                {isUploadingAvatar && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
-                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                Receitas
+              </button>
+              <button
+                onClick={loadFavoritesView}
+                className={`text-sm font-medium transition-colors tracking-widest uppercase ${view === 'favorites' ? 'text-white' : 'text-white/70 hover:text-white'}`}
+              >
+                Favoritos
+              </button>
+            </nav>
+
+            <div className="flex items-center gap-3">
+              {/* Avatar */}
+              <div className="relative">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={handleAvatarClick}
+                  disabled={isUploadingAvatar}
+                  className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden hover:border-primary/40 transition-all cursor-pointer relative group"
+                  title="Clique para alterar foto"
+                >
+                  {isUploadingAvatar && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  {session?.user?.user_metadata?.avatar_url ? (
+                    <img src={session.user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="material-symbols-outlined text-primary text-lg">person</span>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-sm">photo_camera</span>
                   </div>
-                )}
-                {session?.user?.user_metadata?.avatar_url ? (
-                  <img src={session.user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <i className="ph-fill ph-user text-[#D0BCFF] text-base md:text-lg"></i>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <i className="ph ph-camera text-white text-sm"></i>
-                </div>
+                </button>
+              </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-red-400 transition-all hover:bg-white/5"
+                title="Sair"
+              >
+                <span className="material-symbols-outlined text-xl">logout</span>
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="flex md:hidden items-center justify-center w-10 h-10 rounded-full border border-white/20 hover:bg-white/10 transition-all"
+              >
+                <span className="material-symbols-outlined text-white">{mobileMenuOpen ? 'close' : 'menu'}</span>
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 p-6 bg-background-dark/95 backdrop-blur-xl border border-white/10 rounded-xl animate-m3-in">
+            <nav className="flex flex-col gap-4">
+              <button
+                onClick={() => { handleHomeClick(); setMobileMenuOpen(false); }}
+                className={`text-left text-sm font-medium transition-colors tracking-widest uppercase py-2 ${view === 'home' && status === LoadingState.IDLE ? 'text-white' : 'text-white/70'}`}
+              >
+                Receitas
+              </button>
+              <button
+                onClick={() => { loadFavoritesView(); setMobileMenuOpen(false); }}
+                className={`text-left text-sm font-medium transition-colors tracking-widest uppercase py-2 ${view === 'favorites' ? 'text-white' : 'text-white/70'}`}
+              >
+                Favoritos
+              </button>
+            </nav>
+          </div>
+        )}
       </header>
 
-      <main className="flex-grow pt-40 pb-24 px-8 relative z-10">
-        <div className="max-w-6xl mx-auto w-full">
+      {/* Main Content */}
+      <main className="flex-grow relative z-10">
 
-          {view === 'home' && status === LoadingState.IDLE && (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-m3-in space-y-24">
-              <div className="space-y-10">
-                <h1 className="font-display text-5xl md:text-7xl lg:text-9xl text-white font-normal tracking-[-1px] leading-[0.9] md:leading-[0.85] mb-8">
-                  Alquimia & <br className="hidden md:block" /> Tradição.
-                </h1>
-                <p className="text-white/40 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed font-light">
-                  As receitas oficiais da IBA interpretadas com precisão técnica e visual. <br className="hidden md:inline" /> Explore a elite da coquetelaria mundial.
-                </p>
+        {/* Home / Hero View */}
+        {view === 'home' && status === LoadingState.IDLE && (
+          <>
+            {/* Hero Section with Background */}
+            <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+              {/* Background Image with Overlays */}
+              <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/40 to-background-dark z-10"></div>
+                <div className="absolute inset-0 bg-black/40 z-10"></div>
+                <div
+                  className="w-full h-full bg-cover bg-center scale-105"
+                  style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070")' }}
+                ></div>
               </div>
 
-              <div className="w-full max-w-3xl space-y-12">
-                <form onSubmit={handleSearchSubmit} className="relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/40">
-                    <i className={`ph ${searchMode === 'name' ? 'ph-magnifying-glass' : 'ph-flask'} text-2xl`}></i>
-                  </div>
-                  <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={searchMode === 'name' ? "O que vamos preparar?" : "Ingrediente..."}
-                    className="w-full h-16 md:h-[72px] pl-12 md:pl-16 pr-32 md:pr-44 bg-white/[0.05] text-white rounded-full border border-white/5 transition-all outline-none text-base md:text-xl font-light focus:bg-white/[0.08] focus:border-[#D0BCFF]/30 placeholder:text-white/20 shadow-lg"
-                  />
+              {/* Hero Content */}
+              <div className="relative z-20 text-center px-4 max-w-4xl mx-auto mt-20">
+                <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm">
+                  <span className="w-2 h-2 rounded-full bg-primary"></span>
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase text-primary/90">Est. 2024</span>
+                </div>
 
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSearchMode(prev => prev === 'name' ? 'ingredients' : 'name')}
-                      className="h-12 w-12 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-all flex items-center justify-center shrink-0"
-                      title="Mudar modo de busca"
-                    >
-                      <i className={`ph ${searchMode === 'name' ? 'ph-arrows-left-right' : 'ph-magnifying-glass-plus'} text-xl`}></i>
-                    </button>
+                <h1 className="serif-title text-white text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-normal leading-tight mb-8">
+                  O Mixologista <br /> <span className="italic">Digital</span>
+                </h1>
+
+                <p className="text-white/60 text-base md:text-xl font-light leading-relaxed max-w-xl mx-auto mb-12 tracking-wide">
+                  A arte da coquetelaria em suas mãos. Uma exploração intimista da alquimia líquida com precisão digital.
+                </p>
+
+                {/* Search Bar */}
+                <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto w-full relative group">
+                  <div className="absolute inset-0 bg-primary/10 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"></div>
+                  <div className="relative flex items-center bg-white/5 border border-white/10 backdrop-blur-md rounded-full focus-within:border-white/30 transition-all shadow-2xl overflow-hidden">
+
+                    {/* Search Mode Selector */}
+                    <div className="flex items-center pl-6 border-r border-white/10 py-2">
+                      <select
+                        value={searchMode}
+                        onChange={(e) => setSearchMode(e.target.value as SearchMode)}
+                        className="bg-transparent border-none text-[10px] uppercase tracking-[0.2em] text-white/50 focus:ring-0 focus:text-white cursor-pointer py-1 pl-0 pr-6 appearance-none font-medium transition-colors"
+                      >
+                        <option className="bg-background-dark text-white" value="name">Nome</option>
+                        <option className="bg-background-dark text-white" value="ingredients">Ingredientes</option>
+                      </select>
+                      <span className="material-symbols-outlined text-[14px] text-white/30 -ml-4 pointer-events-none">expand_more</span>
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="flex flex-1 items-center">
+                      <span className="material-symbols-outlined ml-4 text-white/30 group-focus-within:text-white transition-colors">search</span>
+                      <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="w-full bg-transparent border-none py-4 md:py-5 pl-3 pr-6 text-white text-base md:text-lg font-light tracking-wide focus:ring-0 placeholder:text-white/40"
+                        placeholder="Buscar por nome ou ingrediente..."
+                      />
+                    </div>
+
+                    {/* Search Button */}
                     <button
                       type="submit"
-                      className="h-10 w-10 md:w-auto md:h-12 md:px-8 rounded-full bg-[#D0BCFF] text-[#381E72] transition-all font-bold tracking-wide text-xs md:text-sm hover:bg-[#e1d5ff] active:scale-95 shadow-md flex items-center justify-center gap-2"
+                      className="mr-4 md:mr-6 py-2 px-3 md:px-4 text-white/60 hover:text-white text-xs md:text-sm font-medium tracking-[0.1em] md:tracking-[0.2em] uppercase transition-all relative after:absolute after:bottom-1 after:left-2 after:right-2 after:h-[1px] after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-center"
                     >
-                      <span className="hidden md:inline">Explorar</span>
-                      <i className="ph ph-arrow-right md:hidden text-lg"></i>
+                      Buscar
                     </button>
                   </div>
                 </form>
+              </div>
 
-                <div className="flex flex-wrap justify-center gap-2.5">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setActiveCategory(cat)}
-                      className={`px-5 py-2.5 rounded-full border transition-all text-xs font-semibold tracking-wide ${activeCategory === cat ? 'bg-[#D0BCFF] text-[#381E72] border-transparent shadow-sm' : 'bg-white/5 text-white/60 border-white/5 hover:bg-white/10 hover:text-white'}`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+              {/* Scroll Indicator */}
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4">
+                <span className="text-[10px] tracking-[0.4em] uppercase text-white/40">Role</span>
+                <div className="w-[1px] h-12 bg-gradient-to-b from-primary to-transparent"></div>
+              </div>
+            </section>
+
+            {/* Featured Collections Section */}
+            <section className="relative z-30 bg-background-dark px-6 md:px-20 py-24">
+              <div className="max-w-[1200px] mx-auto">
+                <div className="flex flex-col items-center mb-20">
+                  <h4 className="text-primary text-xs font-bold leading-normal tracking-[0.3em] uppercase mb-4">Coleções em Destaque</h4>
+                  <div className="w-12 h-[1px] bg-white/20"></div>
                 </div>
 
-                <div className="flex flex-col items-center gap-6 pt-12 border-t border-white/5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Sugestões de Acervo</p>
-                  <div className="flex flex-wrap justify-center gap-3 max-w-3xl">
-                    {COCKTAIL_DATABASE
-                      .filter(c => {
-                        if (activeCategory === 'Todos') return true;
-                        const searchTarget = activeCategory === 'Sem Álcool' ? 'Sem Álcool' : activeCategory.replace(/s$/, '');
-                        return c.categories.includes(activeCategory) ||
-                          c.categories.includes(searchTarget) ||
-                          c.tags.includes(activeCategory) ||
-                          c.tags.includes(searchTarget);
-                      })
-                      .slice(0, 8)
-                      .map((c) => (
-                        <button
-                          key={c.name}
-                          onClick={() => { setQuery(c.name); performSearch(c.name, 'name'); }}
-                          className="px-5 py-2 rounded-full border border-white/5 bg-white/[0.02] text-white/40 hover:text-[#D0BCFF] hover:border-[#D0BCFF]/30 hover:bg-[#D0BCFF]/5 transition-all text-sm font-medium"
-                        >
-                          {c.name}
-                        </button>
-                      ))}
+                {/* Collection Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Inesquecíveis */}
+                  <div
+                    onClick={() => { setQuery('Inesquecíveis'); performSearch('Negroni', 'name'); }}
+                    className="group relative aspect-[3/4] rounded-lg overflow-hidden bg-white/5 cursor-pointer"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                    <div
+                      className="absolute inset-0 scale-110 group-hover:scale-100 transition-transform duration-700 bg-cover bg-center"
+                      style={{
+                        backgroundImage: 'url("https://images.unsplash.com/photo-1551751299-1b51cab2694c?q=80&w=1974")',
+                      }}
+                    ></div>
+                    <div className="absolute bottom-8 left-8 z-20">
+                      <p className="serif-title text-white text-2xl md:text-3xl font-normal leading-tight italic">Inesquecíveis</p>
+                      <p className="text-white/50 text-xs tracking-widest uppercase mt-2">The Unforgettables</p>
+                    </div>
+                  </div>
+
+                  {/* Contemporâneos */}
+                  <div
+                    onClick={() => { setQuery('Contemporâneos'); performSearch('Espresso Martini', 'name'); }}
+                    className="group relative aspect-[3/4] rounded-lg overflow-hidden bg-white/5 cursor-pointer mt-0 md:mt-12"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                    <div
+                      className="absolute inset-0 scale-110 group-hover:scale-100 transition-transform duration-700 bg-cover bg-center"
+                      style={{
+                        backgroundImage: 'url("https://images.unsplash.com/photo-1536935338788-846bb9981813?q=80&w=1972")',
+                      }}
+                    ></div>
+                    <div className="absolute bottom-8 left-8 z-20">
+                      <p className="serif-title text-white text-2xl md:text-3xl font-normal leading-tight italic">Contemporâneos</p>
+                      <p className="text-white/50 text-xs tracking-widest uppercase mt-2">Contemporary Classics</p>
+                    </div>
+                  </div>
+
+                  {/* Nova Era */}
+                  <div
+                    onClick={() => { setQuery('Nova Era'); performSearch('Penicillin', 'name'); }}
+                    className="group relative aspect-[3/4] rounded-lg overflow-hidden bg-white/5 cursor-pointer"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                    <div
+                      className="absolute inset-0 scale-110 group-hover:scale-100 transition-transform duration-700 bg-cover bg-center"
+                      style={{
+                        backgroundImage: 'url("https://images.unsplash.com/photo-1587223962930-cb7f31384c19?q=80&w=1974")',
+                      }}
+                    ></div>
+                    <div className="absolute bottom-8 left-8 z-20">
+                      <p className="serif-title text-white text-2xl md:text-3xl font-normal leading-tight italic">Nova Era</p>
+                      <p className="text-white/50 text-xs tracking-widest uppercase mt-2">New Era Drinks</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* About Section */}
+                <div className="mt-40 flex flex-col lg:flex-row gap-20 items-center">
+                  <div className="flex-1 flex flex-col gap-8">
+                    <h1 className="serif-title text-white text-4xl md:text-5xl font-normal leading-tight">
+                      A Arte do <br /><span className="italic text-primary">Drinque Perfeito</span>
+                    </h1>
+                    <p className="text-white/60 text-lg font-light leading-relaxed max-w-[540px]">
+                      Experimente uma coleção curada de receitas de coquetéis pensadas para o conhecedor moderno. Cada medida, cada mistura e cada guarnição são documentadas com detalhes intransigentes.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+                      <div className="flex flex-col gap-3 p-6 rounded-lg border border-white/5 bg-white/[0.02]">
+                        <span className="material-symbols-outlined text-primary text-3xl">liquor</span>
+                        <div>
+                          <h2 className="text-white text-base font-bold tracking-wide uppercase mb-1">Destilados Curados</h2>
+                          <p className="text-white/40 text-sm leading-relaxed">Seleções escolhidas a dedo de destilarias boutique.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-3 p-6 rounded-lg border border-white/5 bg-white/[0.02]">
+                        <span className="material-symbols-outlined text-primary text-3xl">temp_preferences_custom</span>
+                        <div>
+                          <h2 className="text-white text-base font-bold tracking-wide uppercase mb-1">Técnica Especialista</h2>
+                          <p className="text-white/40 text-sm leading-relaxed">Domine as habilidades por trás do batido e mexido perfeitos.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 relative">
+                    <div className="w-full aspect-square rounded-full border border-white/10 flex items-center justify-center p-12">
+                      <div
+                        className="w-full h-full rounded-full bg-cover bg-center grayscale hover:grayscale-0 transition-all duration-1000"
+                        style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=1974")' }}
+                      ></div>
+                    </div>
+                    <div className="absolute -top-4 -right-4 w-24 h-24 border-t border-r border-primary/40"></div>
+                    <div className="absolute -bottom-4 -left-4 w-24 h-24 border-b border-l border-primary/40"></div>
                   </div>
                 </div>
               </div>
+            </section>
+          </>
+        )}
 
-            </div>
-          )}
+        {/* Loading State */}
+        {status === LoadingState.LOADING && (
+          <div className="flex flex-col items-center justify-center min-h-screen animate-m3-in space-y-8 px-6">
+            <div className="w-20 h-20 border-2 border-white/5 border-t-primary rounded-full animate-spin"></div>
+            <p className="text-white/30 text-xs font-black uppercase tracking-[0.4em] animate-pulse">{searchStatus}</p>
+          </div>
+        )}
 
-          {status === LoadingState.LOADING && (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] animate-m3-in space-y-8">
-              <div className="w-20 h-20 border-2 border-white/5 border-t-white/60 rounded-full animate-spin"></div>
-              <p className="text-white/30 text-xs font-black uppercase tracking-[0.4em] animate-pulse">{searchStatus}</p>
-            </div>
-          )}
-
-          {status === LoadingState.SUCCESS && data && (
-            <div className="animate-m3-in space-y-16">
+        {/* Single Cocktail View */}
+        {status === LoadingState.SUCCESS && data && view === 'home' && (
+          <div className="animate-m3-in pt-32 pb-24 px-6 md:px-20">
+            <div className="max-w-[1200px] mx-auto space-y-16">
               <button
                 onClick={handleHomeClick}
                 className="group w-14 h-14 rounded-full bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center"
               >
-                <i className="ph ph-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
+                <span className="material-symbols-outlined text-2xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
               </button>
 
               <CocktailCard
@@ -448,122 +588,168 @@ const App: React.FC = () => {
                 onToggleFavorite={handleToggleFavorite}
               />
             </div>
-          )}
+          </div>
+        )}
 
-          {/* New Result List View */}
-          {status === LoadingState.SUCCESS && view === 'results' && searchResults.length > 0 && (
-            <div className="animate-m3-in space-y-24">
+        {/* Multiple Results View */}
+        {status === LoadingState.SUCCESS && view === 'results' && searchResults.length > 0 && (
+          <div className="animate-m3-in pt-32 pb-24 px-6 md:px-20">
+            <div className="max-w-[1200px] mx-auto space-y-24">
               <div className="flex items-end justify-between border-b border-white/5 pb-8 md:pb-14">
                 <div className="space-y-2">
                   <button
                     onClick={handleHomeClick}
                     className="group flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-4"
                   >
-                    <i className="ph ph-arrow-left text-xl"></i>
+                    <span className="material-symbols-outlined text-xl">arrow_back</span>
                     <span className="text-sm font-bold uppercase tracking-widest">Voltar</span>
                   </button>
-                  <h2 className="font-display text-4xl md:text-6xl text-white font-normal tracking-tighter">
+                  <h2 className="serif-title text-4xl md:text-6xl text-white font-normal tracking-tighter italic">
                     Resultados para "{query}".
                   </h2>
                   <p className="text-white/40 font-light">Encontramos {searchResults.length} drinks com essa busca.</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {searchResults.map((result) => (
                   <div
                     key={result.name}
                     onClick={() => { setData(result); setView('home'); setStatus(LoadingState.SUCCESS); }}
-                    className="group relative rounded-[48px] overflow-hidden bg-white/[0.02] border border-white/5 p-10 cursor-pointer hover:bg-white/[0.04] transition-all duration-700 hover:-translate-y-3 shadow-xl"
+                    className="group relative aspect-[3/4] rounded-lg overflow-hidden bg-white/5 cursor-pointer hover:bg-white/[0.08] transition-all duration-500"
                   >
-                    <div className="aspect-[4/3] rounded-[32px] bg-black/40 mb-10 overflow-hidden flex items-center justify-center relative">
-                      {result.imageUrl ? (
-                        <img src={result.imageUrl} alt={result.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-700" />
-                      ) : (
-                        <i className="ph ph-martini text-8xl text-[#D0BCFF]/15"></i>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                    <div
+                      className="absolute inset-0 scale-110 group-hover:scale-100 transition-transform duration-700 bg-cover bg-center"
+                      style={{
+                        backgroundImage: result.imageUrl ? `url("${result.imageUrl}")` : 'linear-gradient(to bottom, rgba(50,17,212,0.3), rgba(10,9,16,0.9))',
+                        backgroundColor: result.color || '#1a1a2e'
+                      }}
+                    >
+                      {!result.imageUrl && (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="material-symbols-outlined text-8xl text-white/10">local_bar</span>
+                        </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                        <span className="text-white text-xs font-black uppercase tracking-widest">Abrir Receita</span>
-                      </div>
                     </div>
-                    <h3 className="font-display text-3xl md:text-4xl text-white mb-4 group-hover:translate-x-2 transition-transform duration-500">{result.name}</h3>
-                    <p className="text-xs text-white/30 uppercase tracking-[0.4em] font-black">{result.ibaClassification}</p>
+                    <div className="absolute bottom-8 left-8 z-20">
+                      <p className="serif-title text-white text-2xl md:text-3xl font-normal leading-tight italic group-hover:translate-x-2 transition-transform duration-500">{result.name}</p>
+                      <p className="text-white/50 text-xs tracking-widest uppercase mt-2">{result.ibaClassification}</p>
+                    </div>
+                    <div className="absolute inset-0 z-20 flex items-end p-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-white text-xs font-black uppercase tracking-widest">Abrir Receita →</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {status === LoadingState.ERROR && (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center animate-m3-in space-y-10">
-              <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-                <i className="ph ph-warning-circle text-5xl text-red-500/60"></i>
-              </div>
-              <h3 className="font-display text-5xl text-white/90">Ops! Algo deu errado.</h3>
-              <p className="text-white/30 font-light max-w-sm mx-auto text-lg leading-relaxed">{searchStatus || "Não conseguimos completar sua busca no momento."}</p>
-              <button
-                onClick={handleHomeClick}
-                className="px-12 py-5 rounded-full border border-white/10 text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-[0.5em]"
-              >
-                Tentar novamente
-              </button>
+        {/* Error State */}
+        {status === LoadingState.ERROR && (
+          <div className="flex flex-col items-center justify-center min-h-screen text-center animate-m3-in space-y-10 px-6">
+            <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+              <span className="material-symbols-outlined text-5xl text-red-500/60">error</span>
             </div>
-          )}
+            <h3 className="serif-title text-4xl md:text-5xl text-white/90 italic">Ops! Algo deu errado.</h3>
+            <p className="text-white/30 font-light max-w-sm mx-auto text-lg leading-relaxed">{searchStatus || "Não conseguimos completar sua busca no momento."}</p>
+            <button
+              onClick={handleHomeClick}
+              className="px-12 py-5 rounded-full border border-white/10 text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-[0.5em]"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
 
-          {status === LoadingState.NOT_FOUND && (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center animate-m3-in space-y-10">
-              <h3 className="font-display text-5xl text-white/90">Drink não encontrado.</h3>
-              <p className="text-white/30 font-light max-w-sm mx-auto text-lg leading-relaxed">Não encontramos resultado clássico ou moderno para sua busca. Tente outro termo ou ingrediente.</p>
-              <button
-                onClick={handleHomeClick}
-                className="px-12 py-5 rounded-full border border-white/10 text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-[0.5em]"
-              >
-                Tentar novamente
-              </button>
-            </div>
-          )}
+        {/* Not Found State */}
+        {status === LoadingState.NOT_FOUND && (
+          <div className="flex flex-col items-center justify-center min-h-screen text-center animate-m3-in space-y-10 px-6">
+            <span className="material-symbols-outlined text-8xl text-white/10">search_off</span>
+            <h3 className="serif-title text-4xl md:text-5xl text-white/90 italic">Drink não encontrado.</h3>
+            <p className="text-white/30 font-light max-w-sm mx-auto text-lg leading-relaxed">Não encontramos resultado clássico ou moderno para sua busca. Tente outro termo ou ingrediente.</p>
+            <button
+              onClick={handleHomeClick}
+              className="px-12 py-5 rounded-full border border-white/10 text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-[0.5em]"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
 
-          {view === 'favorites' && (
-            <div className="animate-m3-in space-y-24">
+        {/* Favorites View */}
+        {view === 'favorites' && (
+          <div className="animate-m3-in pt-32 pb-24 px-6 md:px-20">
+            <div className="max-w-[1200px] mx-auto space-y-24">
               <div className="flex items-end justify-between border-b border-white/5 pb-8 md:pb-14">
-                <h2 className="font-display text-5xl md:text-8xl text-white font-normal tracking-tighter">Acervo Pessoal.</h2>
+                <div className="space-y-2">
+                  <h4 className="text-primary text-xs font-bold leading-normal tracking-[0.3em] uppercase">Seu Acervo</h4>
+                  <h2 className="serif-title text-5xl md:text-7xl text-white font-normal tracking-tighter italic">Favoritos.</h2>
+                </div>
               </div>
 
               {favoritesList.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {favoritesList.map((fav) => (
                     <div
                       key={fav.name}
                       onClick={() => { setData(fav); setStatus(LoadingState.SUCCESS); setView('home'); }}
-                      className="group relative rounded-[48px] overflow-hidden bg-white/[0.02] border border-white/5 p-10 cursor-pointer hover:bg-white/[0.04] transition-all duration-700 hover:-translate-y-3 shadow-xl"
+                      className="group relative aspect-[3/4] rounded-lg overflow-hidden bg-white/5 cursor-pointer hover:bg-white/[0.08] transition-all duration-500"
                     >
-                      <div className="aspect-[4/3] rounded-[32px] bg-black/40 mb-10 overflow-hidden flex items-center justify-center relative">
-                        {fav.imageUrl ? (
-                          <img src={fav.imageUrl} alt={fav.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-700" />
-                        ) : (
-                          <i className="ph ph-martini text-8xl text-[#D0BCFF]/15"></i>
+                      <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10 opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                      <div
+                        className="absolute inset-0 scale-110 group-hover:scale-100 transition-transform duration-700 bg-cover bg-center"
+                        style={{
+                          backgroundImage: fav.imageUrl ? `url("${fav.imageUrl}")` : 'linear-gradient(to bottom, rgba(50,17,212,0.3), rgba(10,9,16,0.9))',
+                          backgroundColor: fav.color || '#1a1a2e'
+                        }}
+                      >
+                        {!fav.imageUrl && (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="material-symbols-outlined text-8xl text-white/10">local_bar</span>
+                          </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                          <span className="text-white text-xs font-black uppercase tracking-widest">Ver Receita Completa</span>
-                        </div>
                       </div>
-                      <h3 className="font-display text-3xl md:text-4xl text-white mb-4 group-hover:translate-x-2 transition-transform duration-500">{fav.name}</h3>
-                      <p className="text-xs text-white/30 uppercase tracking-[0.4em] font-black">{fav.ibaClassification}</p>
+                      <div className="absolute bottom-8 left-8 z-20">
+                        <p className="serif-title text-white text-2xl md:text-3xl font-normal leading-tight italic group-hover:translate-x-2 transition-transform duration-500">{fav.name}</p>
+                        <p className="text-white/50 text-xs tracking-widest uppercase mt-2">{fav.ibaClassification}</p>
+                      </div>
+                      <div className="absolute top-4 right-4 z-20">
+                        <span className="material-symbols-outlined text-red-400 text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-48 border border-dashed border-white/10 rounded-[64px]">
-                  <p className="text-white/10 text-xs font-black uppercase tracking-[0.6em]">Nenhum drink favoritado no momento.</p>
+                <div className="text-center py-48 border border-dashed border-white/10 rounded-lg">
+                  <span className="material-symbols-outlined text-6xl text-white/10 mb-6">favorite_border</span>
+                  <p className="text-white/10 text-xs font-black uppercase tracking-[0.4em]">Nenhum drink favoritado no momento.</p>
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
 
-      <footer className="py-20 text-center opacity-30 hover:opacity-100 transition-opacity border-t border-white/5">
-        <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] md:tracking-[1.4em] text-white">The Digital Mixologist • 2026</p>
+      {/* Footer */}
+      <footer className="relative z-30 bg-background-dark border-t border-white/5 px-6 md:px-20 py-12">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-3 opacity-50">
+            <div className="w-6 h-6 flex items-center justify-center bg-white/20 rounded-full">
+              <span className="material-symbols-outlined text-white text-xs">local_bar</span>
+            </div>
+            <h2 className="text-white text-sm font-bold tracking-widest uppercase">O Mixologista Digital</h2>
+          </div>
+          <div className="flex gap-10">
+            <a className="text-[10px] tracking-[0.3em] uppercase text-white/30 hover:text-primary transition-colors" href="#">Instagram</a>
+            <a className="text-[10px] tracking-[0.3em] uppercase text-white/30 hover:text-primary transition-colors" href="#">Pinterest</a>
+            <a className="text-[10px] tracking-[0.3em] uppercase text-white/30 hover:text-primary transition-colors" href="#">Contato</a>
+          </div>
+          <p className="text-[10px] tracking-[0.2em] uppercase text-white/20">
+            © 2024 Digital Mixologist Studio
+          </p>
+        </div>
       </footer>
     </div>
   );

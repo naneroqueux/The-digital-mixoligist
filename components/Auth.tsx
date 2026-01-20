@@ -31,73 +31,119 @@ export const Auth: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#141218] p-6">
-            <div className="w-full max-w-md animate-m3-in">
-                <div className="mb-12 text-center space-y-4">
-                    <div className="inline-flex items-center justify-center mb-6">
-                        <i className="ph ph-martini text-6xl text-[#D0BCFF]"></i>
+        <div className="min-h-screen w-full flex items-center justify-center bg-background-dark overflow-hidden relative">
+            {/* Background with gradient overlay */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-background-dark via-background-dark/95 to-primary/10 z-10"></div>
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+            </div>
+
+            <div className="relative z-10 w-full max-w-md px-6 animate-m3-in">
+                {/* Logo & Title */}
+                <div className="mb-12 text-center space-y-6">
+                    <div className="inline-flex items-center justify-center mb-4">
+                        <div className="w-16 h-16 flex items-center justify-center bg-primary rounded-full">
+                            <span className="material-symbols-outlined text-white text-3xl">local_bar</span>
+                        </div>
                     </div>
-                    <h1 className="font-display text-4xl md:text-5xl text-white font-normal tracking-tight">
-                        Seja bem-vindo.
-                    </h1>
-                    <p className="text-white/40 font-light text-lg">
-                        {isSignUp ? 'Crie sua conta no acervo digital.' : 'Acesse seu bar pessoal.'}
-                    </p>
+                    <div className="space-y-3">
+                        <h1 className="serif-title text-4xl md:text-5xl text-white font-normal">
+                            {isSignUp ? 'Crie sua conta' : 'Bem-vindo de volta'}
+                        </h1>
+                        <p className="text-white/40 font-light text-base md:text-lg">
+                            {isSignUp ? 'Junte-se ao acervo digital de coquetelaria.' : 'Acesse seu bar pessoal.'}
+                        </p>
+                    </div>
                 </div>
 
-                <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/5 p-6 md:p-10 rounded-[32px] md:rounded-[48px] shadow-2xl space-y-8">
+                {/* Auth Form Card */}
+                <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-xl shadow-2xl space-y-8">
                     <form onSubmit={handleAuth} className="space-y-6">
+                        {/* Email Field */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-4">E-mail</label>
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full h-16 px-8 rounded-full bg-white/[0.05] border border-white/5 text-white outline-none focus:border-[#D0BCFF]/30 transition-all text-lg font-light"
-                                placeholder="seu@email.com"
-                            />
+                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">mail</span>
+                                E-mail
+                            </label>
+                            <div className="relative group">
+                                <input
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full h-14 px-6 rounded-lg bg-white/[0.05] border border-white/10 text-white outline-none focus:border-primary/50 focus:bg-white/[0.08] transition-all text-base font-light placeholder:text-white/30"
+                                    placeholder="seu@email.com"
+                                />
+                                <div className="absolute inset-0 rounded-lg bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+                            </div>
                         </div>
 
+                        {/* Password Field */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-4">Senha</label>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full h-16 px-8 rounded-full bg-white/[0.05] border border-white/5 text-white outline-none focus:border-[#D0BCFF]/30 transition-all text-lg font-light"
-                                placeholder="••••••••"
-                            />
+                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 ml-1 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">lock</span>
+                                Senha
+                            </label>
+                            <div className="relative group">
+                                <input
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full h-14 px-6 rounded-lg bg-white/[0.05] border border-white/10 text-white outline-none focus:border-primary/50 focus:bg-white/[0.08] transition-all text-base font-light placeholder:text-white/30"
+                                    placeholder="••••••••"
+                                />
+                                <div className="absolute inset-0 rounded-lg bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+                            </div>
                         </div>
 
+                        {/* Message */}
                         {message && (
-                            <p className={`text-xs md:text-sm text-center px-4 font-medium ${message.type === 'error' ? 'text-red-400' : 'text-[#D0BCFF]'}`}>
-                                {message.text}
-                            </p>
+                            <div className={`flex items-center gap-3 p-4 rounded-lg ${message.type === 'error' ? 'bg-red-500/10 border border-red-500/20' : 'bg-primary/10 border border-primary/20'}`}>
+                                <span className={`material-symbols-outlined text-lg ${message.type === 'error' ? 'text-red-400' : 'text-primary'}`}>
+                                    {message.type === 'error' ? 'error' : 'check_circle'}
+                                </span>
+                                <p className={`text-sm font-medium ${message.type === 'error' ? 'text-red-400' : 'text-primary'}`}>
+                                    {message.text}
+                                </p>
+                            </div>
                         )}
 
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full h-16 rounded-full bg-[#D0BCFF] text-[#381E72] font-bold text-lg hover:bg-[#e1d5ff] transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                            className="w-full h-14 rounded-lg bg-primary text-white font-bold text-base hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group"
                         >
                             {loading ? (
-                                <div className="w-6 h-6 border-2 border-[#381E72]/20 border-t-[#381E72] rounded-full animate-spin"></div>
+                                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                             ) : (
-                                <span>{isSignUp ? 'Criar Conta' : 'Entrar'}</span>
+                                <>
+                                    <span>{isSignUp ? 'Criar Conta' : 'Entrar'}</span>
+                                    <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                </>
                             )}
                         </button>
                     </form>
 
+                    {/* Toggle Auth Mode */}
                     <div className="pt-6 border-t border-white/5 text-center">
                         <button
-                            onClick={() => setIsSignUp(!isSignUp)}
-                            className="text-white/40 hover:text-white transition-colors text-sm font-medium"
+                            onClick={() => { setIsSignUp(!isSignUp); setMessage(null); }}
+                            className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center gap-2"
                         >
+                            <span className="material-symbols-outlined text-base">{isSignUp ? 'login' : 'person_add'}</span>
                             {isSignUp ? 'Já tem uma conta? Entre agora.' : 'Não tem conta? Crie uma gratuitamente.'}
                         </button>
                     </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-12 text-center">
+                    <p className="text-[10px] tracking-[0.3em] uppercase text-white/20">
+                        © 2024 O Mixologista Digital
+                    </p>
                 </div>
             </div>
         </div>
